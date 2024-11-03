@@ -1,52 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Management - Products</title>
     <style>
-        :root {
-            --container-bg-color: rgba(34, 34, 34, 0.8); /* Semi-transparent container background */
-            --heading-color: #007bff; /* Blue heading color */
-            --table-bg-color: #222; /* Table background color */
-            --table-header-bg-color: #333; /* Table header background color */
-            --table-row-bg-color: #1a1a1a; /* Even row background color */
-            --text-color: #ddd; /* General text color */
-            --link-color: #88ccff; /* Lighter blue for links */
-            --link-hover-color: #ffffff; /* White on hover */
-            --shadow-color: rgba(0, 0, 0, 0.5); /* Shadow for container */
-            --background-image: url('https://png.pngtree.com/background/20230413/original/pngtree-business-e-shopping-picture-image_2422998.jpg'); /* Background image URL */
-        }
-
         body {
-            background: var(--background-image) no-repeat center center fixed;
-            background-size: cover; /* Cover the entire screen */
-            color: var(--text-color);
+            background: url('https://png.pngtree.com/background/20230413/original/pngtree-business-e-shopping-picture-image_2422998.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ddd;
             font-family: 'Arial', sans-serif;
             padding: 0;
             margin: 0;
-            display: flex; /* Center content horizontally and vertically */
+            display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Full viewport height */
+            height: 100vh;
         }
 
         .container {
             padding: 30px;
             max-width: 1200px;
-            width: 90%; /* Responsive width */
+            width: 90%;
             margin: 0 auto;
-            background: var(--container-bg-color);
+            background: rgba(34, 34, 34, 0.8);
             border-radius: 10px;
-            box-shadow: 0 0 15px var(--shadow-color);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             animation: fadeIn 1s ease-in-out;
-            text-align: center; /* Center text inside container */
+            text-align: center;
         }
 
         h1 {
             font-size: 32px;
-            color: var(--heading-color); /* Blue color for heading */
+            color: #007bff;
             margin-bottom: 20px;
         }
 
@@ -59,32 +45,31 @@
             width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
-            background: var(--table-bg-color);
+            background: #222;
             border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 30px; /* Space below the table */
+            margin-bottom: 30px;
         }
 
-        table,
-        th,
+        th {
+            background-color: #333;
+            color: #007bff;
+            font-weight: normal;
+            padding: 12px;
+        }
+
         td {
             border: 1px solid #444;
             padding: 12px;
             text-align: center;
         }
 
-        th {
-            background-color: var(--table-header-bg-color); /* Header color */
-            color: var(--heading-color); /* Heading color */
-            font-weight: normal;
-        }
-
         tr:nth-child(even) {
-            background-color: var(--table-row-bg-color); /* Even row color */
+            background-color: #1a1a1a;
         }
 
         tr:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Highlight row on hover */
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         @keyframes fadeIn {
@@ -92,7 +77,6 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -100,7 +84,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <h1>Available Products</h1>
@@ -116,23 +99,35 @@
                     <th>Available</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="product-table-body">
                 <!-- Product Data will be dynamically added from Server -->
-                <tr>
-                    <td>Product A</td>
-                    <td>200</td>
-                    <td>$25</td>
-                    <td>150</td>
-                </tr>
-                <tr>
-                    <td>Product B</td>
-                    <td>100</td>
-                    <td>$50</td>
-                    <td>75</td>
-                </tr>
             </tbody>
         </table>
     </div>
-</body>
 
+    <script>
+        window.onload = function() {
+            fetch('/getProducts')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('product-table-body');
+                    data.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.name}</td>
+                            <td>${product.total}</td>
+                            <td>${product.price}</td>
+                            <td>${product.available}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching products:", error);
+                    const tableBody = document.getElementById('product-table-body');
+                    tableBody.innerHTML = '<tr><td colspan="4">Failed to load products. Please try again later.</td></tr>';
+                });
+        };
+    </script>
+</body>
 </html>
