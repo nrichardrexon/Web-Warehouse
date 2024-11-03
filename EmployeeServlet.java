@@ -1,3 +1,5 @@
+package com.warehouse;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,31 +19,34 @@ public class EmployeeServlet extends HttpServlet {
             throws ServletException, IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+
+        String dbUrl = "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12741091";
+        String dbUsername = "sql12741091";
+        String dbPassword = System.getenv("DB_PASSWORD");
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String dbUrl = "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12741091";
-            String dbUsername = "sql12741091";
-            String dbPassword = "krzpU6TWyN"; // Replace with your DB password
 
-            Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            String sql = "SELECT * FROM employees WHERE username = ? AND password = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, username);
-            statement.setString(2, password);
-            ResultSet resultSet = statement.executeQuery();
+            try (Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+                    PreparedStatement statement = connection.prepareStatement(
+                            "SELECT * FROM employees WHERE username = ? AND password = ?")) {
 
-            if (resultSet.next()) {
-                HttpSession session = request.getSession();
-                session.setAttribute("username", username);
-                response.sendRedirect("Product.jsp");
-            } else {
-                response.sendRedirect("EmployeeLogin.html");
+                statement.setString(1, username);
+                statement.setString(2, password);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        HttpSession session = request.getSession();
+                        session.setAttribute("username", username);
+                        response.sendRedirect("Product.jsp");
+                    } else {
+                        response.sendRedirect("EmployeeLogin.html");
+                    }
+                }
             }
-            resultSet.close();
-            statement.close();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("error.jsp?message=An+error+occurred.+Please+try+again.");
         }
     }
 }
