@@ -1,107 +1,63 @@
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, java.util.*" %>
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Management - Products</title>
+    <title>Warehouse Products - Client View</title>
     <style>
         body {
-            background-color: #f4f4f4;
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
             padding: 20px;
         }
-
-        h1 {
-            text-align: center;
-        }
-
         table {
-            width: 80%;
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
+            margin: 20px 0;
             background-color: #fff;
         }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-
         th {
             background-color: #f2f2f2;
         }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
     </style>
 </head>
-
 <body>
     <h1>Available Products</h1>
     <table>
         <thead>
             <tr>
                 <th>Product Name</th>
-                <th>Total Products</th>
+                <th>Category</th>
                 <th>Price</th>
-                <th>Available</th>
             </tr>
         </thead>
         <tbody>
             <%
-            Connection connection = null;
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                String dbUrl = "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12741091"; // Adjust your DB URL
-                String dbUsername = "sql12741091"; // Your DB username
-                String dbPassword = "krzpU6TWyN"; // Your DB password
+                try {
+                    Class.forName("com.mysql.cj.jdbc.Driver"); // Updated driver class
+                    Connection conn = DriverManager.getConnection("jdbc:mysql://HOST/DB", "USER", "PASSWORD");
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM products");
 
-                connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                String sql = "SELECT * FROM product"; // Adjust if necessary
-                preparedStatement = connection.prepareStatement(sql);
-                resultSet = preparedStatement.executeQuery();
+                    while (rs.next()) {
+                        out.println("<tr>");
+                        out.println("<td>" + rs.getString("productName") + "</td>");
+                        out.println("<td>" + rs.getString("category") + "</td>");
+                        out.println("<td>" + rs.getDouble("price") + "</td>");
+                        out.println("</tr>");
+                    }
 
-                while (resultSet.next()) {
-                    String productName = resultSet.getString("productName");
-                    int quantity = resultSet.getInt("quantity");
-                    double price = resultSet.getDouble("price");
-                    int availableStock = resultSet.getInt("availableStock");
-            %>
-            <tr>
-                <td><%= productName %></td>
-                <td><%= quantity %></td>
-                <td><%= String.format("%.2f", price) %></td>
-                <td><%= availableStock %></td>
-            </tr>
-            <%
-                }
-            } catch (Exception e) {
-                out.println("<tr><td colspan='4'>Error retrieving products. Please try again later.</td></tr>");
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (resultSet != null) resultSet.close();
+                    conn.close();
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                try {
-                    if (preparedStatement != null) preparedStatement.close();
-                } catch (Exception e) {
-                }
-                try {
-                    if (connection != null) connection.close();
-                } catch (Exception e) {
-                }
-            }
             %>
         </tbody>
     </table>
 </body>
-
 </html>
